@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
+        version="2.0">
+        
+        <description>Test</description>
+        <tlib-version>1.0</tlib-version>
+        <short-name>test</short-name>
+        <uri>http://www.fisher.com/tags/jsvalidate</uri>
+        
+        <tag>
+            <description></description>
+            <name>jsValidate</name>
+            <tag-class>com.fisher.base.tags.JsValidateTag</tag-class>
+            <body-content>empty</body-content>
+            <attribute>
+                <description>Path to property for data binding</description>
+                <name>modelAttribute</name>
+                <required>true</required>
+                <rtexprvalue>true</rtexprvalue>
+            </attribute>
+        </tag>
+        
+</taglib>
