@@ -7,19 +7,19 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import me.chanjar.weixin.common.exception.WxErrorException;
+import me.chanjar.weixin.common.api.WxConsts;
 import me.chanjar.weixin.common.session.WxSessionManager;
 import me.chanjar.weixin.mp.api.WxMpConfigStorage;
-import me.chanjar.weixin.mp.api.WxMpInMemoryConfigStorage;
 import me.chanjar.weixin.mp.api.WxMpMessageHandler;
 import me.chanjar.weixin.mp.api.WxMpMessageRouter;
 import me.chanjar.weixin.mp.api.WxMpService;
-import me.chanjar.weixin.mp.api.WxMpServiceImpl;
 import me.chanjar.weixin.mp.bean.WxMpXmlMessage;
 import me.chanjar.weixin.mp.bean.WxMpXmlOutMessage;
 import me.chanjar.weixin.mp.bean.WxMpXmlOutTextMessage;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -28,20 +28,20 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @RequestMapping(value = "/weixinrequest")
 public class WeiXinRequestController {
 	
+	@Autowired
+    @Qualifier("wxMpConfigStorage")
 	protected WxMpConfigStorage wxMpConfigStorage;
+
+	@Autowired
+    @Qualifier("wxMpService")
 	protected WxMpService wxMpService;
+	
+	@Autowired
+    @Qualifier("wxMpMessageRouter")
 	protected WxMpMessageRouter wxMpMessageRouter;
 	
 	@RequestMapping(value="/process", method = {RequestMethod.GET})
 	public void processRequest(HttpServletRequest request, HttpServletResponse response) throws NoSuchAlgorithmException, IOException{
-		WxMpInMemoryConfigStorage config = new WxMpInMemoryConfigStorage();
-		config.setAppId("..."); // 设置微信公众号的appid
-		config.setSecret("..."); // 设置微信公众号的app corpSecret
-		config.setToken("..."); // 设置微信公众号的token
-		config.setAesKey("..."); // 设置微信公众号的EncodingAESKey
-		
-		wxMpService = new WxMpServiceImpl();
-	    wxMpService.setWxMpConfigStorage(wxMpConfigStorage);
 		
 	    String signature = request.getParameter("signature");
 	    String nonce = request.getParameter("nonce");
@@ -87,9 +87,10 @@ public class WeiXinRequestController {
 	      
 	      
 	      WxMpMessageHandler handler = new WxMpMessageHandler() {
-	          @Override public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage, Map<String, Object> context, WxMpService wxMpService, WxSessionManager sessionManager) {
+	          @Override 
+	          public WxMpXmlOutMessage handle(WxMpXmlMessage wxMessage, Map<String, Object> context, WxMpService wxMpService, WxSessionManager sessionManager) {
 	            WxMpXmlOutTextMessage m
-	                = WxMpXmlOutMessage.TEXT().content("测试消息").fromUser(wxMessage.getToUserName())
+	                = WxMpXmlOutMessage.TEXT().content(wxMessage.getContent()).fromUser(wxMessage.getToUserName())
 	                .toUser(wxMessage.getFromUserName()).build();
 	            return m;
 	          }
@@ -97,11 +98,9 @@ public class WeiXinRequestController {
 	      
 	      //业务处理逻辑
 	      
-	      wxMpMessageRouter = new WxMpMessageRouter(wxMpService);
 	      wxMpMessageRouter
 	          .rule()
-	          .async(false)
-	          .content("哈哈") // 拦截内容为“哈哈”的消息
+	          .msgType(WxConsts.XML_MSG_TEXT)
 	          .handler(handler)
 	          .end();
 	      

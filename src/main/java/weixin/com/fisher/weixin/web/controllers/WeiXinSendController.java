@@ -11,6 +11,8 @@ import me.chanjar.weixin.common.exception.WxErrorException;
 import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.api.WxMpServiceImpl;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -26,6 +28,10 @@ import com.fisher.system.web.models.WXCreateMenuModel;
 @Controller
 @RequestMapping(value = "/weixinsend")
 public class WeiXinSendController extends BaseController {
+	
+	@Autowired
+    @Qualifier("wxMpService")
+	protected WxMpService wxMpService;
 	
 	@RequestMapping(value="/test", method = {RequestMethod.GET})
 	public void test(HttpServletRequest request, HttpServletResponse response) throws IOException{
@@ -67,7 +73,6 @@ public class WeiXinSendController extends BaseController {
 	@AuthPassport
 	@RequestMapping(value="/getmenu", method = {RequestMethod.GET})
 	public String getMenu(HttpServletRequest request, Model model) throws IOException, WxErrorException{
-		WxMpService wxMpService = new WxMpServiceImpl();
 		WxMenu wxMenu = wxMpService.menuGet();
 		
 		model.addAttribute("contentModel", wxMenu.toJson());
